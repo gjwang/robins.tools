@@ -1,0 +1,69 @@
+---
+title: Token Creator
+description: Deploy a standard ERC-20 on Robinhood Chain in one transaction, then verify it on the explorer.
+---
+
+The Token Creator deploys a standard, audit-friendly ERC-20 from your wallet, with no Solidity required. You fill in a short form, sign one deployment transaction, and get the contract address plus everything needed to verify the source on the explorer. Deployment gas is paid by you; the app adds nothing.
+
+## What it does
+
+- Deploys a precompiled `RobinsToken` ERC-20 (OpenZeppelin-based) directly from your wallet.
+- Lets you set name, symbol, decimals, initial supply, and the owner, and flag the token mintable and/or burnable.
+- Estimates the deployment cost before you sign.
+- Produces a downloadable verification file so the source can be verified on Blockscout.
+
+## The contract
+
+`RobinsToken` is a minimal ERC-20 with no pausing, upgradeability, or fees. Its behavior is controlled by two flags fixed at deployment:
+
+- **Mintable**: the owner can mint more supply later. If off, the total supply is fixed at what you mint on deployment.
+- **Burnable**: holders can burn their own tokens (and burn from an allowance). If off, tokens cannot be burned by the contract's own functions.
+
+The initial supply is minted to the owner address when the token is deployed.
+
+## Step by step
+
+1. **Fill in the form:**
+   - **Name** (1 to 64 characters) and **Symbol** (1 to 11 characters).
+   - **Decimals** (0 to 36, default 18).
+   - **Initial supply** in human units (decimals allowed; may be 0). It is scaled by the token's decimals into raw units for the constructor.
+   - **Mintable** and **Burnable** switches.
+   - Optionally, under Advanced, an **Owner address** (defaults to your connected wallet).
+     A live summary card previews the token as you type.
+2. **Review the estimated cost.** Before signing, the app estimates the deployment gas and shows an approximate fee in ETH.
+3. **Deploy.** Sign the single deployment transaction and wait for it to be mined.
+4. **Done.** The success card shows the new contract address (with copy), an explorer token link, and an **Add to wallet** button so the token appears in your wallet's asset list.
+
+## Verifying the source on Blockscout
+
+The success card includes a **Contract verification** block. Verifying publishes the human-readable source on the explorer so anyone can confirm the bytecode matches.
+
+1. Click **Download verification JSON**. This saves `robins-token-verification.json`, the Solidity standard-JSON input containing every source file used.
+2. On the explorer, open your token's address and choose to verify the contract using **Standard JSON input**.
+3. Use these settings:
+
+   | Setting             | Value                     |
+   | ------------------- | ------------------------- |
+   | Compiler            | `v0.8.36+commit.8a079791` |
+   | Optimizer           | Enabled, 200 runs         |
+   | Contract name       | `RobinsToken`             |
+   | Standard JSON input | the downloaded file       |
+
+4. Upload the file and submit. Constructor arguments are auto-detected from the deployment, so you do not need to enter them by hand.
+
+<Callout type="info">
+  The compiler version and optimizer settings must match exactly, which is why
+  the download embeds the full standard-JSON input rather than a single
+  flattened file.
+</Callout>
+
+## Fees and gas
+
+You pay the deployment gas, which depends on network conditions at the time. The estimate shown before signing is approximate. There is no service fee.
+
+## Limits and safety
+
+- The contract is fixed and minimal by design: there is no proxy or upgrade path, so its behavior cannot change after deployment.
+- If **mintable** is on, the owner can increase supply later; leave it off for a hard-capped token.
+- The owner address controls minting (when enabled). Set it deliberately; by default it is your connected wallet.
+- If a deployment fails or you reject it, the form is preserved and the decoded reason is shown.

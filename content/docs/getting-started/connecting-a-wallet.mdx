@@ -1,0 +1,48 @@
+---
+title: Connecting a wallet
+description: How wallet connection works, what network gets added, and what your wallet will ask you to approve.
+---
+
+Most tools that only read the chain (balances, the network tracker, the transaction decoder, contract reads) work with no wallet at all. You only need to connect a wallet for tools that send a transaction: multisender, token creator, approvals, burner, contract writes, and message signing.
+
+## Connecting
+
+1. Click **Connect Wallet** in the header.
+2. The Reown AppKit modal opens. Choose your wallet. Browser extensions like MetaMask and Rabby, mobile wallets over WalletConnect, and injected wallets are all supported.
+3. Approve the connection request in your wallet. The app only asks for your address; connecting does not move any funds or grant any spending permission.
+
+Once connected, the header shows your address and network. You can disconnect at any time from the same menu.
+
+## The network is added automatically
+
+robins.tools is a single-network app: the only chain it uses is Robinhood Chain (chain ID `4663`). When you connect, or when you start a transaction while on a different network, the app asks your wallet to add and switch to Robinhood Chain.
+
+Your wallet will show a network-add prompt with these details:
+
+| Field           | Value                                   |
+| --------------- | --------------------------------------- |
+| Network name    | Robinhood Chain                         |
+| Chain ID        | 4663                                    |
+| RPC URL         | https://rpc.mainnet.chain.robinhood.com |
+| Currency symbol | ETH                                     |
+| Block explorer  | https://robinhoodchain.blockscout.com   |
+
+Approving this only adds the network to your wallet. It is the same information listed on the [Network reference](/docs/getting-started/network) page, and nothing is spent.
+
+<Callout type="warn">
+  Always confirm the chain ID reads **4663** before approving a network-add
+  prompt. That is the value this app uses.
+</Callout>
+
+## What your wallet will ask you to approve
+
+Connecting never spends anything. Individual tools produce their own transactions, and your wallet is always the final gate:
+
+- **Reads** (balances, decoding, contract queries) happen over the RPC and never prompt your wallet.
+- **Writes** (sending tokens, deploying a contract, approving or revoking, burning) open a wallet confirmation showing the exact call and any ETH value. You review and sign each one, and you pay the gas.
+
+Nothing is ever auto-signed. If a tool needs several transactions (for example, an ERC-20 multisend needs an approval and then the send), each one is a separate prompt you approve in turn.
+
+## If Connect Wallet is disabled
+
+Wallet connection uses [Reown AppKit](https://reown.com), which needs a project ID supplied at build time through the `NEXT_PUBLIC_REOWN_PROJECT_ID` environment variable. On a deployment where that value is missing, the button is disabled and read-only tools still work. If you are self-hosting, see [Security](/docs/security) for how to set it.

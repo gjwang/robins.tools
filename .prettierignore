@@ -1,0 +1,24 @@
+# Build output and generated files
+.next
+out
+build
+.source
+.vercel
+
+# Dependencies
+node_modules
+
+# Lockfiles and generated metadata
+pnpm-lock.yaml
+pnpm-workspace.yaml
+*.tsbuildinfo
+next-env.d.ts
+
+# Owner-authored spec (leave untouched)
+plan.md
+
+# Vendored shadcn/ui components (kept in their generated style)
+components/ui
+
+# Generated contract artifacts
+lib/abis

@@ -1,0 +1,46 @@
+---
+title: Address List Utilities
+description: Validate, checksum, dedupe, and clean messy address lists, then export CSV, JSON, or plain text.
+---
+
+The Address List Utilities tidy up a raw address list: validate every entry, apply checksum casing, drop duplicates and malformed rows, and export a clean list. It is the natural prep step before a [multisend](/docs/tools/multisender) or a [merkle airdrop](/docs/tools/merkle). Everything runs in your browser with no network requests.
+
+## What it does
+
+- Parses a pasted or uploaded list of addresses, optionally with amounts.
+- Validates and checksums each address, reporting every problem it finds.
+- Removes duplicates and exports a clean list as CSV, JSON, or plain text.
+
+## Input
+
+Paste into the textarea, or upload a `.csv`/`.txt` file. The parser understands common separators and `address,amount` rows, validates each address, and applies EIP-55 checksum casing.
+
+## Options
+
+- **Remove duplicates** (on by default).
+- **Keep amounts**: auto-detected from your input. When amounts are present and a duplicate is removed, the first occurrence is kept.
+
+## Results
+
+- **Stat badges**: total rows, valid, invalid, and duplicates removed.
+- **Problems table**: line number, the raw content, and the reason for any invalid row.
+- **Preview**: the first cleaned rows, in monospace.
+
+### Export
+
+Download the cleaned list as **CSV**, **JSON**, or plain newline **TXT** (for example `addresses-clean.csv`). The CSV includes an amount column only when amounts are present.
+
+## Step by step
+
+1. Paste or upload your list.
+2. Review the stats and the problems table, and adjust the options.
+3. Export the clean list in the format you need.
+
+## Fees and gas
+
+Free, and offline. This tool sends no transactions and makes no network calls.
+
+## Limits and safety
+
+- Cleaning here does not change anything on-chain; it only prepares a list.
+- Fix or drop flagged rows before using the list downstream; an invalid or duplicated address in a multisend or airdrop can misdirect funds.

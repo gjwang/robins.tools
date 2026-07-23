@@ -1,0 +1,51 @@
+---
+title: Approval Manager
+description: Scan your ERC-20 approval history, see every active allowance, and revoke the ones you no longer trust.
+---
+
+The Approval Manager finds every ERC-20 spending allowance your wallet has granted and lets you revoke any of them in one transaction each. Unlimited approvals are flagged so you can shrink your attack surface. The scan reads the chain directly; spender names come from the explorer.
+
+## Why approvals matter
+
+When you approve a contract to spend a token, that allowance stays live until you change it, and is often set to "unlimited" for convenience. If that contract is later compromised, the allowance can be used to move your tokens. Periodically reviewing and revoking stale approvals is basic wallet hygiene. See [Approvals and revoking](/docs/concepts/approvals-and-revoking) for the background.
+
+## How the scan works
+
+1. On connect, the app scans your approval history by reading `Approval` event logs where you are the owner, across the full chain history. If the RPC rejects a single wide query, the range is split and retried in halves until it succeeds, with progress shown.
+2. Logs are reduced to unique **(token, spender)** pairs, keeping the most recent approval for each.
+3. For every pair, the app reads the **current** allowance and keeps only those still greater than zero, so revoked or spent approvals do not clutter the list.
+4. Token metadata (symbol, decimals, name) is fetched for the tokens involved, and each unique spender is looked up on the explorer to show a contract name where one is verified.
+
+## Reading the table
+
+Each active approval shows:
+
+- **Token**: symbol and address.
+- **Spender**: address, with the contract's name when it is verified on the explorer.
+- **Allowance**: the amount, or an **Unlimited** flag for effectively boundless approvals (values at or above 2²⁵⁵).
+- **Age**: how long ago the most recent approval was granted.
+- **Revoke**: a one-click revoke.
+
+## Step by step
+
+1. **Connect** your wallet. The scan runs automatically; you can also re-run it with **Scan approvals**.
+2. **Review** the active allowances, paying closest attention to anything marked **Unlimited** or granted to a spender you do not recognize.
+3. **Revoke** an approval. Confirm the dialog, then sign the transaction. Revoking sets the allowance to zero. On success the row is removed.
+
+Revoke one approval at a time; each is its own transaction.
+
+## Fees and gas
+
+Scanning is read-only and free. Each revoke is a normal `approve(spender, 0)` transaction, so you pay its gas. There is no service fee.
+
+## Limits and safety
+
+- Revoking sets an allowance to zero. It does not undo transfers that already happened under a previous allowance.
+- **Unlimited** allowances are the highest priority to revoke if you no longer use the spender.
+- Spender names are informational and come from the explorer; always judge a spender by its address and what you know of it, not the label alone.
+- Over a very long history the log scan may take a moment or fall back to bisected queries on a rate-limited RPC; this is expected.
+
+<Callout type="warn">
+  A revoke only closes future spending. If an allowance has already been abused,
+  revoking cannot reverse it. Revoke proactively, before you need to.
+</Callout>

@@ -1,0 +1,50 @@
+---
+title: Network
+description: Robinhood Chain network details, including chain IDs, RPC endpoints, explorers, and how to override the RPC.
+---
+
+Robinhood Chain is an [Arbitrum Orbit](https://arbitrum.io/orbit) L2 with full EVM compatibility. ETH is the gas token, and standard Ethereum tooling works unchanged. The app targets **mainnet**; the tables below list both mainnet and testnet parameters.
+
+## Mainnet
+
+| Field        | Value                                   |
+| ------------ | --------------------------------------- |
+| Network name | Robinhood Chain                         |
+| Chain ID     | 4663 (`0x1237`)                         |
+| RPC URL      | https://rpc.mainnet.chain.robinhood.com |
+| Explorer     | https://robinhoodchain.blockscout.com   |
+| Gas token    | ETH (18 decimals)                       |
+
+## Testnet
+
+| Field        | Value                                        |
+| ------------ | -------------------------------------------- |
+| Network name | Robinhood Chain Testnet                      |
+| Chain ID     | 46630                                        |
+| RPC URL      | https://rpc.testnet.chain.robinhood.com      |
+| Explorer     | https://explorer.testnet.chain.robinhood.com |
+| Gas token    | ETH (18 decimals)                            |
+
+<Callout type="info">
+  The deployed app is configured for mainnet only. To use it against testnet,
+  self-host and override the RPC as shown below (and point your wallet at chain
+  ID 46630).
+</Callout>
+
+## Explorer
+
+The explorer is a [Blockscout](https://www.blockscout.com) instance. Several tools use its REST API (v2, under `/api/v2/`) to read verified-contract ABIs and names. For example, the [Contract Interactor](/docs/tools/contract) fetches an ABI for you, and the [Approval Manager](/docs/tools/approvals) resolves spender contract names. Address, transaction, token, and block links throughout the app point here.
+
+## Multicall3
+
+Multicall3 is deployed at the canonical address `0xcA11bde05977b3631167028862bE2a173976CA11`. Tools that read many values at once (the [Batch Balance Checker](/docs/tools/balances), token-metadata lookups, allowance scans) batch their calls through it, so a large read is a single RPC round-trip.
+
+## Overriding the RPC
+
+The public RPC is rate-limited. If you are self-hosting and want to use a dedicated provider, set the `NEXT_PUBLIC_RPC_URL` environment variable to your endpoint:
+
+```bash
+NEXT_PUBLIC_RPC_URL=https://your-provider.example/robinhood-chain
+```
+
+When unset, the app falls back to the public mainnet RPC. This is the only value needed to change where reads and transaction broadcasts are sent; nothing else in the app hardcodes a URL. See [Security](/docs/security) for the full list of environment variables.

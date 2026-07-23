@@ -1,0 +1,51 @@
+---
+title: Vanity Address Generator
+description: Grind a wallet address with a custom prefix or suffix, entirely in your browser, so the key never leaves the page.
+---
+
+The Vanity Address Generator searches for a wallet whose address starts or ends with the characters you choose. The search runs in your browser using Web Workers, and every candidate key is generated locally with a secure random seed. No network request is made at any point, so nothing about the key ever leaves the page.
+
+<Callout type="error">
+  The private key is generated locally in your tab and is never transmitted.
+  When you find a match, save the key immediately and treat it as a hot wallet:
+  anyone who has the key controls the funds. Back it up securely and never paste
+  it into an untrusted site.
+</Callout>
+
+## What it does
+
+- Searches for an address matching a prefix and/or suffix you specify.
+- Runs the search in parallel across Web Workers, using all but one CPU core.
+- Generates each key locally from a 256-bit secure random seed and shows the matched key for you to save.
+
+## Choosing a pattern
+
+- Enter a **prefix** and/or **suffix** using hex characters only (`0-9`, `a-f`); at least one is required.
+- Matching is **case-insensitive**; there is no checksum-case matching.
+- Longer patterns are exponentially harder. The combined length is capped at 12, with an escalating warning as it grows, because each extra character multiplies the expected work by 16.
+
+The difficulty panel shows the expected number of attempts (`16^length`) and, once running, an estimated time at your machine's current rate.
+
+## Running it
+
+While the search runs you see live stats: total attempts, combined attempts per second across all workers, elapsed time, and a "50% probability by" estimate. Use **Start** and **Stop** to control it; all workers stop on the first match.
+
+## The result
+
+The result card shows the matched address (checksummed, with the matched part highlighted) and the private key hidden behind a **Reveal** toggle, with copy buttons for both. You can also **Download JSON** containing the address and private key.
+
+## Step by step
+
+1. Choose a prefix and/or suffix.
+2. Start the search and let it grind in-browser.
+3. On a match, reveal and **save the private key** somewhere safe.
+
+## Fees and gas
+
+Free, and offline. Generating a vanity address is local computation, with no transactions and no network calls.
+
+## Limits and safety
+
+- Combined pattern length is capped at 12; even short patterns can take a very long time. A leading `0x` is not part of the searchable characters.
+- Keys are seeded with `crypto.getRandomValues` (a cryptographically secure source), not `Math.random`.
+- The generated key is as sensitive as any wallet key. If it is exposed, the address is compromised. Save it offline and import it into a real wallet before funding it.

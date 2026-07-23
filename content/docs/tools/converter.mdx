@@ -1,0 +1,30 @@
+---
+title: Unit & Hex Converter
+description: Convert wei, gwei, and ether, flip hex and decimal, hash with keccak256, and checksum addresses.
+---
+
+The Unit & Hex Converter is a set of small, exact utilities for everyday on-chain math. It handles arbitrary-precision integers with no floating-point rounding, and it never makes a network request.
+
+## What it does
+
+Four tabs:
+
+- **Units**: three linked fields for **wei**, **gwei**, and **ether**. Type in any one and the others update live. Values are exact big integers, so very large numbers convert without rounding. Each field has a copy button.
+- **Hex ↔ Decimal**: two linked fields converting between hex (with or without `0x`, any case) and arbitrary-precision decimal. Invalid or negative input is rejected gracefully.
+- **Keccak-256**: hash text or hex bytes with keccak256. Toggle between **UTF-8 text** and **Hex bytes** input; the hash updates live and is copyable.
+- **Checksum**: enter an address to see whether it is valid, its EIP-55 checksummed form, and its lowercase form. Invalid input explains why (wrong length, bad characters, or a failed checksum).
+
+## Step by step
+
+1. Pick a tab for the conversion you need.
+2. Type into any input; results update instantly.
+3. Copy the value you want.
+
+## Fees and gas
+
+Free. Nothing here touches the chain.
+
+## Limits and safety
+
+- All math uses big integers, so results are exact, with no silent rounding on large values.
+- This tool never makes a network request; every conversion is local.

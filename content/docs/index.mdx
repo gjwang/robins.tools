@@ -1,0 +1,55 @@
+---
+title: robins.tools
+description: An open-source, privacy-first toolkit for Robinhood Chain that runs entirely in your browser.
+---
+
+robins.tools is a collection of on-chain utilities for [Robinhood Chain](/docs/getting-started/network). Send tokens to a whole list of wallets, deploy an ERC-20, audit your approvals, decode a transaction, generate a merkle airdrop, and more, all from a single site.
+
+Everything runs in your browser: you connect your own wallet, the app talks directly to the chain's RPC, and you pay and sign every transaction yourself. There is no account to create and no server in between.
+
+## Principles
+
+<Callout type="info">
+  These four properties hold for every tool on the site.
+</Callout>
+
+- **Static frontend, no database.** The app never stores your addresses, balances, keys, or lists on a server, because there is no server-side logic to store them on.
+- **Browser talks to the chain, and nothing else.** Reads go to the Robinhood Chain RPC; writes go to your wallet. The only third parties ever contacted are the chain RPC, the [Blockscout](https://robinhoodchain.blockscout.com) explorer API (for verified-contract names and ABIs), openchain.xyz (for looking up a 4-byte function selector), and api.github.com (for the header star count, only when a GitHub repository is configured). See [Privacy by design](/docs/concepts/privacy-by-design) for the full list.
+- **You pay and you sign.** The app never holds funds and never has custody. Every transaction is built in your browser and sent to your own wallet for approval. You pay the gas; the app adds nothing.
+- **Open source, MIT licensed.** The entire codebase is public. You can read it, audit it, fork it, or [self-host](/docs/security) it.
+
+## Tools
+
+### Transact
+
+| Tool                                        | What it does                                                |
+| ------------------------------------------- | ----------------------------------------------------------- |
+| [Multisender](/docs/tools/multisender)      | Send ETH or any ERC-20 to hundreds of wallets in one batch. |
+| [Token Creator](/docs/tools/token-creator)  | Deploy an ERC-20 on Robinhood Chain in one transaction.     |
+| [Approval Manager](/docs/tools/approvals)   | Audit and revoke ERC-20 spending approvals.                 |
+| [Token Burner](/docs/tools/burner)          | Permanently destroy tokens, with explicit confirmation.     |
+| [Contract Interactor](/docs/tools/contract) | Read and write any contract from its ABI.                   |
+
+### Read
+
+| Tool                                          | What it does                                                 |
+| --------------------------------------------- | ------------------------------------------------------------ |
+| [Batch Balance Checker](/docs/tools/balances) | Check native and token balances for hundreds of addresses.   |
+| [Transaction Decoder](/docs/tools/decoder)    | Turn a tx hash or raw calldata into a human-readable action. |
+| [Network Tracker](/docs/tools/network)        | Live gas, blocks, and RPC health for Robinhood Chain.        |
+
+### Offline
+
+These tools make no network requests at all.
+
+| Tool                                                | What it does                                          |
+| --------------------------------------------------- | ----------------------------------------------------- |
+| [Merkle Tree Generator](/docs/tools/merkle)         | Build airdrop merkle roots and proofs, fully offline. |
+| [Sign & Verify](/docs/tools/sign)                   | Sign messages and verify signatures.                  |
+| [Unit & Hex Converter](/docs/tools/converter)       | wei, gwei, ether, hex, keccak256, and checksums.      |
+| [Vanity Address Generator](/docs/tools/vanity)      | Grind a custom address prefix in your browser.        |
+| [Address List Utilities](/docs/tools/address-utils) | Validate, checksum, dedupe, and clean address lists.  |
+
+## New here?
+
+Start with [Connecting a wallet](/docs/getting-started/connecting-a-wallet) and the [Network reference](/docs/getting-started/network). If you are evaluating whether this is safe to use, read [Security](/docs/security) and [Privacy by design](/docs/concepts/privacy-by-design).

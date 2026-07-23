@@ -1,0 +1,50 @@
+---
+title: Transaction Decoder
+description: Turn a transaction hash or raw calldata into a human-readable function call, parameters, and value.
+---
+
+The Transaction Decoder makes hex readable. Paste a transaction hash to fetch and decode a transaction, or paste raw calldata to decode it on its own. It resolves the right ABI from several sources and shows the function, its arguments, the value moved, and, for transactions, the decoded event logs. It is read-only and needs no wallet.
+
+## What it does
+
+- Accepts a transaction hash or raw calldata, auto-detecting which you pasted.
+- Fetches transaction details and receipt, and decodes the call and its logs.
+- Resolves an ABI from the explorer, from built-in standards, or from a signature database, whichever succeeds first.
+
+## Transaction-hash mode
+
+For a hash, the tool fetches the transaction and its receipt and shows an overview: status (success or reverted), block, timestamp, from and to, ETH value, gas used times effective gas price as a fee, and nonce.
+
+- If `to` is empty, it is a **contract creation** and the created address is shown.
+- If the input is `0x`, it is a **plain ETH transfer** and there is nothing to decode.
+- Otherwise the calldata is decoded (below) and the **event logs** are decoded too: known ERC-20 and ERC-721 events directly, and other events using the emitting contract's ABI when it is verified. Anything that can't be decoded is shown raw and collapsed.
+
+## Calldata decoding
+
+The tool resolves an ABI by trying these sources in order and shows which one succeeded:
+
+1. **Explorer**: for a transaction whose target is verified, the contract's ABI (following proxies to the implementation).
+2. **Built-in standards**: viem's ERC-20 ABI plus common ERC-721/1155 functions, resolved locally with no network call.
+3. **Signature database**: the 4-byte selector is looked up on openchain.xyz and the returned signature is used to decode. If several candidates match, each is tried until one decodes.
+4. **Fallback**: if nothing matches, the selector is shown as "unknown function" and the calldata is laid out in 32-byte words with offsets, which is still useful for manual reading.
+
+The output shows the function name and signature, then an argument table: name (or index), type, and value. Values render by type: addresses as links, exact integers (with a formatted hint for large 18-decimal-looking values), nested arrays and tuples, and copyable hex for bytes. **Copy as JSON** exports the decoded arguments (integers as strings). In raw calldata mode, value and surrounding context are unknown and noted as such.
+
+## Step by step
+
+1. Paste a **transaction hash** or **raw calldata**. The detected mode is shown.
+2. The app resolves the ABI (explorer, then built-in standards, then the signature database).
+3. Read the decoded call, arguments, value, and, for a transaction, the decoded logs.
+
+## Privacy
+
+Transaction lookups go to the chain RPC. Unknown function selectors are looked up on openchain.xyz, and only the 4-byte selector is sent, never your address or the full calldata. Explorer and openchain failures degrade gracefully to the next source rather than blocking. See [Privacy by design](/docs/concepts/privacy-by-design).
+
+## Fees and gas
+
+Free. This tool only reads data and sends no transactions.
+
+## Limits and safety
+
+- Decoding quality depends on available ABIs; an unverified contract with an unknown selector falls back to the raw word view.
+- A decoded call is a best-effort interpretation of on-chain data, not a guarantee of intent; verify against the contract itself when it matters.

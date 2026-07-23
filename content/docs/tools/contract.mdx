@@ -1,0 +1,54 @@
+---
+title: Contract Interactor
+description: Read and write any contract from its ABI, auto-loaded from the explorer or pasted in.
+---
+
+The Contract Interactor turns any contract's ABI into a form for every function. Point it at an address to load a verified ABI automatically, or paste one in. Reads run against the RPC for free and need no wallet; writes are simulated first, then sent to your wallet to sign.
+
+## What it does
+
+- Fetches the verified ABI for a contract from the explorer, or accepts one you paste.
+- Follows proxies to the implementation ABI.
+- Generates a typed input form for every read and write function.
+- Decodes return values into readable output, and surfaces revert reasons before you sign a write.
+
+## Getting the ABI
+
+Enter a contract address. The app queries the explorer:
+
+- **Verified contract**: its ABI is loaded automatically. If the contract is a proxy, the implementation's ABI is fetched and used at the proxy address, shown with a _"Proxy → implementation"_ badge.
+- **Unverified contract**: you will see _"Not verified on Blockscout"_ and a box to paste an ABI. Both a JSON ABI array and human-readable ABI lines (for example, `function transfer(address to, uint256 amount)`) are accepted.
+
+A summary shows the contract name (when verified), a verified badge, and an explorer link.
+
+## Reads and writes
+
+Functions are split into **Read** (view/pure) and **Write** (state-changing) tabs, each an accordion with a search filter. Every function gets one field per argument, labeled with its name and type, validated as you type:
+
+- Addresses are checked for validity; booleans use a switch; integers accept whole numbers (negatives for signed types); bytes accept hex; arrays and tuples accept JSON. Payable functions add a **Value (ETH)** field.
+
+### Reading
+
+Fill in the arguments and click **Query**. The result is rendered by type (exact integers, addresses as links, arrays and structs as a tree, bytes as copyable hex), with a raw-JSON toggle (integers as strings). Reads go straight to the RPC; nothing is proxied, and no wallet is needed.
+
+### Writing
+
+Writes need a connected wallet (the Write tab shows a compact connect prompt when you are disconnected). Click **Simulate & Write**: the call is simulated first, and if it would revert, the reason is shown inline and nothing is sent. If simulation passes, the transaction goes to your wallet; once signed, its progress and a link are shown.
+
+## Step by step
+
+1. Paste a contract address; the verified ABI is fetched (or paste your own).
+2. Open the **Read** or **Write** tab and find a function.
+3. Fill in the arguments.
+4. **Query** a read for free, or **Simulate & Write** to sign a write.
+
+## Fees and gas
+
+Reads are free. Writes cost the gas of the transaction you sign; there is no service fee.
+
+## Limits and safety
+
+- Reads go to the RPC; the explorer is used only to fetch the ABI. Nothing is proxied through a backend.
+- Writes are always simulated before sending, so most reverts are caught before you spend gas.
+- If a contract exposes no functions of a kind, that tab shows an empty state. `constructor`, `fallback`, and `receive` are not listed.
+- You are responsible for what a write does. Understand the function and its arguments before signing; the tool executes exactly what you enter.

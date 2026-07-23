@@ -1,0 +1,45 @@
+---
+title: Token Burner
+description: Permanently take ERC-20 tokens out of circulation, behind a deliberate multi-step confirmation.
+---
+
+The Token Burner removes ERC-20 tokens from circulation for good. It detects whether a token supports a real burn and, if not, falls back to sending the tokens to a dead address. Because burning is irreversible, it sits behind a deliberate confirmation. You pay the gas; the app holds nothing.
+
+## What it does
+
+- Burns any ERC-20 you hold.
+- Detects the correct burn path for the token and shows it before you confirm.
+- Requires an explicit, typed confirmation so a burn cannot happen by accident.
+
+## Two burn paths
+
+The tool checks, using your actual account and amount, whether the token has a working `burn` function:
+
+- **Native burn**: the token supports `burn(uint256)`. Burning reduces the total supply. The tool shows: _"Token supports burn(), so supply will decrease."_
+- **Dead-address fallback**: the token has no usable `burn`. The tokens are instead sent to the dead address `0x…dEaD`, taking them out of circulation without changing the total supply. The tool shows: _"No burn() found, so tokens will be sent to the dead address."_
+
+Which path applies is shown **before** you confirm, so there are no surprises.
+
+## Step by step
+
+1. **Choose the token.** Paste its address; the app fetches name, symbol, decimals, total supply, and your balance, and shows a token card.
+2. **Enter the amount** in human units (a **Max** button fills your full balance). Amounts above your balance are rejected inline.
+3. **See the path.** The tool displays whether this will be a native burn or a dead-address transfer.
+4. **Confirm deliberately.** A dialog summarizes the token, amount, path, and irreversibility. To enable the destructive confirm button you must type the token's symbol exactly and check _"I understand this is irreversible."_
+5. **Burn.** Sign the transaction. The success card shows the transaction link and a before/after: total supply for a native burn, or your balance for either path.
+
+## Fees and gas
+
+You pay the gas for the single burn transaction. There is no service fee.
+
+## Limits and safety
+
+- ERC-20 tokens only.
+- Burning is **permanent**. There is no recovery from either path: a native burn destroys supply, and the dead address has no known private key.
+- The dead-address fallback leaves the token's total supply unchanged; only your balance drops.
+- The typed-symbol and checkbox gate exists specifically to prevent burning the wrong token or amount, so read the summary before confirming.
+
+<Callout type="error">
+  There is no undo. Once signed, the tokens are gone. Confirm the token symbol,
+  the amount, and the path in the dialog before you approve the transaction.
+</Callout>

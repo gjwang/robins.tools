@@ -1,0 +1,76 @@
+---
+title: Multisender
+description: Send ETH or any ERC-20 to hundreds of wallets in a single batch, straight from your wallet.
+---
+
+The Multisender airdrops ETH or any ERC-20 to a list of recipients. You import the list, choose how amounts are calculated, review the totals and gas, and sign each batch. Tokens and ETH go directly from your wallet to the recipients; the app never holds funds and adds no fee.
+
+## What it does
+
+- Batches many transfers into a small number of transactions instead of one per recipient.
+- Supports native ETH and any ERC-20.
+- Four ways to set amounts: an explicit amount per row, one fixed amount for every wallet, an equal split of a total, or a split by weights.
+- Simulates each batch before you sign and shows revert reasons if something is wrong.
+
+## How sending works
+
+The mechanics differ by asset, because sending ERC-20 tokens on behalf of your wallet safely requires a purpose-built helper contract.
+
+### Native ETH
+
+ETH sends use an open-source **disperse helper** contract (`disperseEther`) when one is available, or fall back to the chain's **Multicall3** contract (`aggregate3Value`) otherwise. Either way, recipients are chunked at **200 per transaction**. ETH sends work even if no disperse helper is deployed.
+
+### ERC-20 tokens
+
+Token sends require the disperse helper and take two steps:
+
+1. **Approve**: you grant the disperse helper an allowance covering the send. By default this is a single approval for the grand total across all batches; you can instead approve per batch.
+2. **Disperse**: the helper's `disperseToken` pulls exactly your approved amount and forwards it to recipients, chunked at **300 per transaction**.
+
+<Callout type="warn">
+  ERC-20 sends never approve Multicall3. Multicall3 can make arbitrary calls, so
+  an allowance to it could be used to move your tokens elsewhere. The dedicated
+  disperse helper's `disperseToken` can only spend the caller's own allowance,
+  which is why token sends use it instead. Only ever grant an ERC-20 allowance
+  to a contract you understand.
+</Callout>
+
+### The disperse helper
+
+The helper is resolved in this order:
+
+1. A pre-configured address (`NEXT_PUBLIC_DISPERSE_ADDRESS`), if the deployment sets one and bytecode exists there.
+2. A helper you previously deployed from this browser (remembered in local storage for chain 4663).
+3. Otherwise, a one-time **deploy** card: deploy the open-source helper yourself in a single transaction. You own the deployment, and it is reused for future sends.
+
+You do not need a helper to send ETH.
+
+## Step by step
+
+1. **Token**: choose Native ETH or ERC-20. For a token, paste its address; the app fetches the name, symbol, decimals, and your balance and shows a token card.
+2. **Recipients**: paste rows or upload a CSV (a downloadable example CSV is provided), then pick an amount mode:
+   - **Custom per row**: each line is `address,amount` in human units, scaled by the token's decimals.
+   - **Fixed per wallet**: an address-only list plus one amount applied to every recipient.
+   - **Split total equally**: an address-only list plus a total; the total is divided in raw units and any remainder goes to the first recipient.
+   - **Proportional weights**: lines are `address,weight` plus a total; each share is floored in raw units and any remainder goes to the largest weight.
+     Invalid lines are listed with the reason, and duplicate addresses can be merged or reduced to the first occurrence.
+3. **Review**: see the recipient table (capped at 100 with an "and N more" note), the grand total, the per-chunk breakdown (how many transactions of what size), your balance against the required amount (plus rough gas headroom for ETH), and an estimated network fee from simulating the first batch.
+4. **Send**: batches are sent sequentially, each shown as its own progress row (pending, awaiting wallet confirmation, mined with a transaction link, or failed with a reason). The ERC-20 approval appears as its own row. If a batch fails, sending stops and you can retry that batch or resume the remaining ones; completed batches are never resent.
+
+## Fees and gas
+
+You pay all gas. There is no protocol fee and no service fee. For ERC-20 sends, budget for the approval transaction plus one transaction per 300 recipients; for ETH, one transaction per 200 recipients. Deploying the disperse helper, if needed, is a one-time additional transaction.
+
+## Limits and safety
+
+- Up to **1,000 recipients** total per run.
+- Zero amounts are rejected.
+- Self-sends are allowed but flagged.
+- Every batch is simulated immediately before it is sent, and revert reasons are surfaced rather than swallowed.
+- Clean your list first with the [Address List Utilities](/docs/tools/address-utils) to remove duplicates and malformed rows.
+
+<Callout type="error">
+  Transfers are irreversible. Double-check the token, the amount mode, and the
+  totals on the Review step before signing; the app sends exactly what you
+  confirm.
+</Callout>

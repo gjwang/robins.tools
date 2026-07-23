@@ -1,0 +1,47 @@
+---
+title: Sign & Verify
+description: Sign a message with your wallet, or recover and check the signer of any message and signature.
+---
+
+Sign & Verify does two related things: sign an arbitrary message with your connected wallet, and verify a message-and-signature pair to recover the address that produced it. Signing needs a wallet; verifying needs neither a wallet nor a network, and runs fully in your browser.
+
+## What it does
+
+- **Sign** a text message with your wallet using EIP-191 `personal_sign`.
+- **Verify** a signature by recovering the signer's address, and optionally check it against an expected address.
+
+## Sign
+
+The Sign tab requires a connected wallet.
+
+1. Type your message.
+2. Click **Sign message** and approve the request in your wallet.
+3. The result card shows the **signature** (copyable), the **signer address**, and an echo of the message.
+
+Signatures use EIP-191 personal-sign. Rejecting the request in your wallet is handled gracefully; it is not an error.
+
+## Verify
+
+The Verify tab works with no wallet and no network.
+
+1. Paste the **message** and the **signature**.
+2. Optionally enter an **expected signer** address.
+3. Click verify. The tool recovers the signer's address from the signature. If you provided an expected signer, it shows a clear match (valid) or mismatch result.
+
+An incorrectly formatted signature is reported inline.
+
+## Step by step
+
+1. On **Sign**, type a message and sign it with your wallet.
+2. On **Verify**, paste a message and signature to recover the signer.
+3. Optionally compare the recovered address against one you expect.
+
+## Fees and gas
+
+Free. Signing a message is an off-chain cryptographic operation: it is not a transaction, costs no gas, and is not broadcast. Verifying is pure local computation.
+
+## Limits and safety
+
+- A signature proves that the holder of a private key signed a specific message; it does not move funds or approve anything on-chain.
+- Verification happens entirely in-browser, so nothing about the message or signature is sent anywhere.
+- Only sign messages you understand. Be cautious of prompts to sign unfamiliar or structured data from untrusted sites.

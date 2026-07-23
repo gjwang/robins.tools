@@ -1,0 +1,39 @@
+---
+title: Network Tracker
+description: A live dashboard of gas price, latest blocks, average block time, and RPC health for Robinhood Chain.
+---
+
+The Network Tracker is a live pulse of Robinhood Chain: current gas price, the latest blocks, average block time, and RPC responsiveness. It is read-only and needs no wallet. Its only network calls are to the chain RPC.
+
+## What it shows
+
+- **Stat cards:**
+  - **Gas price**: the current gas price in gwei.
+  - **Latest block**: the tip block number, with a ticking "seconds ago".
+  - **Average block time**: computed from the timestamps of the last 30 blocks.
+  - **RPC latency**: the round-trip time of the last poll, with a health dot (green under 1s, amber under 3s, red on failure or stale data).
+- **Chain info card**: chain ID (4663), the RPC URL in use, an explorer link, and the native currency. These are read from the app's chain configuration, never hardcoded on this page.
+- **Latest blocks table**: the last 10 blocks with number (linked to the explorer), age, transaction count, and gas used as a share of the gas limit. New blocks slide in as they arrive.
+
+## Live updates
+
+The dashboard polls every 5 seconds. A **Pause/Resume** button stops and restarts polling, and updates pause automatically when the browser tab is hidden. Robinhood Chain produces blocks faster than once per second, so the tracker shows the current tip and the ten blocks before it each poll rather than trying to render every block.
+
+## Step by step
+
+1. Open the page; polling starts automatically.
+2. Watch live gas, the latest blocks, and block time.
+3. Check the health dot and latency for RPC status; pause when you don't need updates.
+
+## States
+
+If the RPC is unreachable, a banner with a retry appears, stale data is grayed out, and the health dot turns red.
+
+## Fees and gas
+
+Free. The tracker only reads and sends no transactions.
+
+## Limits and safety
+
+- Readings reflect the RPC currently in use; a rate-limited public endpoint can show elevated latency. Self-host with a dedicated RPC for steadier numbers (see the [Network reference](/docs/getting-started/network)).
+- Average block time and gas price are live estimates that move with network conditions.

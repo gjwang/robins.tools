@@ -1,0 +1,56 @@
+---
+title: Merkle Tree Generator
+description: Build an airdrop merkle root and a proof for every entry, entirely in your browser.
+---
+
+The Merkle Tree Generator turns an address list (optionally with amounts) into a merkle root and a proof for each entry, ready to power an on-chain airdrop claim. It runs entirely in your browser and makes **zero network requests**. The output verifies against standard OpenZeppelin `MerkleProof`.
+
+## What it does
+
+- Builds a merkle tree from a list of addresses, or address/amount pairs.
+- Uses OpenZeppelin's `StandardMerkleTree`, so proofs verify with the standard on-chain library.
+- Exports a full reloadable tree and a claims file mapping each address to its proof.
+
+## Input format
+
+Paste rows, or upload a `.csv`/`.txt` file, in one consistent format:
+
+- `address`: one address per line, or
+- `address,amount`: an address and an amount per line.
+
+Every row must use the same format; mixing rows with and without an amount is an error that asks you to pick one.
+
+<Callout type="warn">
+  Amounts are **raw uint256 token units** (wei-style). They are not scaled by
+  decimals; scale by your token's decimals first. Decimal points in an amount
+  are rejected with a per-line error.
+</Callout>
+
+Addresses must be **unique**: merkle leaves cannot repeat. Duplicates are listed as errors; clean the list first with the [Address List Utilities](/docs/tools/address-utils).
+
+## Output
+
+- **Root**: the merkle root hash, shown prominently and copyable. This is the value you set in your claim contract.
+- **Entries**: the count of leaves.
+- **Table**: address, amount, and a copyable proof per row (display is capped at the first 200 rows).
+
+### Downloads
+
+- **Full tree JSON**: the complete tree dump. It can be reloaded later with `StandardMerkleTree.load` to regenerate any proof without re-entering the list.
+- **Claims JSON**: a compact map: `{ root, format, claims: { address: { index, amount?, proof } } }`, convenient for a claim frontend.
+
+## Step by step
+
+1. Paste or upload your address list (with or without amounts).
+2. Generate the tree.
+3. Copy the **root** for your contract and export the proofs.
+
+## Fees and gas
+
+Free, and offline. Generating a tree sends no transactions and makes no network calls. Claiming an airdrop on-chain later costs gas, but that happens in your claim contract, not here.
+
+## Limits and safety
+
+- Leaf encoding is `['address']` or `['address','uint256']` depending on your input, matching OpenZeppelin's `StandardMerkleTree`.
+- The root commits to the exact list and amounts you provide. Regenerate and re-verify if anything changes; a different list produces a different root.
+- Because everything is local, nothing about your recipient list leaves the page.

@@ -1,0 +1,38 @@
+---
+title: Merkle airdrops
+description: What a merkle root and proof are, and how they make a large airdrop cheap to distribute on-chain.
+---
+
+A merkle airdrop is a way to distribute tokens to a large list of recipients without paying to write that whole list on-chain. Instead of storing every entry, the contract stores one small hash, the **merkle root**, and each recipient proves they belong to the list when they claim.
+
+## Roots, leaves, and proofs
+
+A merkle tree hashes your data into a single root:
+
+- A **leaf** is one entry: an address, or an address paired with an amount.
+- Leaves are hashed together in pairs, then those hashes are paired and hashed again, level by level, up to a single **root**.
+- A **proof** for a given leaf is the small set of sibling hashes needed to recompute the root from that leaf.
+
+The key property: given a leaf and its proof, anyone can recompute the root. If it matches the stored root, the leaf is provably part of the original list, and it is practically impossible to forge a proof for a leaf that was not included.
+
+## How a claim works
+
+1. You generate the tree off-chain and get the **root** plus a **proof** for every recipient.
+2. You deploy (or configure) a claim contract holding the tokens, with the root stored in it.
+3. To claim, a recipient submits their entry and proof. The contract recomputes the root from them and, if it matches, releases their tokens and marks them claimed so they cannot claim twice.
+
+Only the root lives on-chain, so the cost is roughly constant no matter how many recipients there are. Each recipient pays the gas for their own claim.
+
+## Amounts are raw units
+
+When a leaf includes an amount, it is a **raw uint256 token amount**, wei-style, not scaled by the token's decimals. A token with 18 decimals means 1 whole token is `1000000000000000000`. Scale amounts by the token's decimals **before** building the tree, because the on-chain claim compares against the exact leaf value.
+
+<Callout type="warn">
+  Amounts in the tree are raw units. If you enter human amounts by mistake,
+  every proof will be for the wrong value and claims will not match what you
+  intend.
+</Callout>
+
+## Doing it here
+
+The [Merkle Tree Generator](/docs/tools/merkle) builds the tree in your browser using OpenZeppelin's `StandardMerkleTree`, so the proofs verify against the standard on-chain `MerkleProof` library. It gives you the root to store in your claim contract, a proof for every entry, and exportable JSON. Because leaves must be unique, clean your list first with the [Address List Utilities](/docs/tools/address-utils).

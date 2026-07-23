@@ -1,0 +1,75 @@
+---
+title: Security
+description: What the app can and cannot do, how to self-host it, and how to verify a deployment matches the source.
+---
+
+robins.tools is designed to earn trust structurally rather than ask for it. This page states plainly what the app is and is not able to do, and how to run and verify it yourself.
+
+## What the app can and cannot do
+
+**It can:**
+
+- Read public chain data over the RPC.
+- Build transactions and hand them to your wallet for approval.
+- Compute things locally: hashes, conversions, merkle trees, vanity keys, and signature recovery.
+
+**It cannot:**
+
+- Move funds without a signature. Every transaction is signed in your wallet for a specific action; there is no custody and no admin key.
+- See your private key or seed phrase. It never asks for them and never handles them.
+- Store or transmit your data to a backend. There is no backend or database. See [Privacy by design](/docs/concepts/privacy-by-design).
+- Auto-sign or bundle hidden actions. Each transaction is a distinct prompt you review.
+
+The residual trust is ordinary and unavoidable: you trust that the frontend you loaded builds the transaction it says it does. The mitigations for that are the code being open source and self-hostable, below.
+
+<Callout type="warn">
+  On-chain actions are irreversible. The app's safety guarantees are about
+  custody and privacy; they do not protect you from approving a transaction
+  with the wrong address or amount. Always review each transaction in your
+  wallet before signing.
+</Callout>
+
+## Self-hosting
+
+The app is a standard Next.js project and runs anywhere Next.js does. To run your own copy:
+
+1. **Clone the repository** (the source link is in the app's header and footer).
+2. **Install dependencies** with pnpm:
+
+   ```bash
+   pnpm install
+   ```
+
+3. **Configure environment variables** in a `.env.local` file:
+
+   | Variable                       | Required            | Purpose                                                                                                                                                                   |
+   | ------------------------------ | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+   | `NEXT_PUBLIC_REOWN_PROJECT_ID` | For wallet features | Reown AppKit project ID, from [cloud.reown.com](https://cloud.reown.com). Without it the app still runs, but wallet connection is disabled and only read-only tools work. |
+   | `NEXT_PUBLIC_RPC_URL`          | Optional            | Override the RPC endpoint (for example a dedicated provider). Defaults to the public mainnet RPC.                                                                         |
+   | `NEXT_PUBLIC_GITHUB_URL`       | Optional            | Repository URL; when set, GitHub links appear in the header and footer.                                                                                                   |
+
+   All configuration is public (`NEXT_PUBLIC_*`): there are no server secrets, because there is no server-side logic.
+
+4. **Build and start:**
+
+   ```bash
+   pnpm build
+   pnpm start
+   ```
+
+   For local development, `pnpm dev` runs the app with hot reload.
+
+Because every value is a build-time public variable and there is no database, hosting is just serving a static Next.js frontend. Point `NEXT_PUBLIC_RPC_URL` at your own RPC to avoid the shared public endpoint's rate limits.
+
+## Verifying a deployment matches the source
+
+To confirm a hosted instance is running the code you expect:
+
+- **Read the source.** The repository is public and MIT licensed. The tools' behavior is exactly what the code shows; there is no hidden backend that could diverge from it.
+- **Build it yourself.** Clone, install, and build from a specific commit, then compare against the deployment's behavior. Since the app is client-side, what runs in your browser is the built frontend and nothing more.
+- **Watch the network.** Open your browser's developer tools and inspect the network tab while using a tool. You should see requests only to the chain RPC, the Blockscout explorer API, (only in the decoder, for unknown selectors) openchain.xyz, and (only when a GitHub repository is configured) api.github.com for the header star count. The offline tools should make no requests at all. This is the practical way to confirm the [privacy claims](/docs/concepts/privacy-by-design) for yourself.
+- **Inspect each transaction in your wallet.** Your wallet shows the exact call and value before you sign. That is the final, authoritative check on what any tool is actually asking you to do.
+
+## Reporting issues
+
+If you find a security problem, report it through the repository's issue or security-contact channels rather than disclosing it publicly, so it can be addressed before it is widely known.

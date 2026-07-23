@@ -1,0 +1,52 @@
+---
+title: FAQ
+description: Common questions about safety, cost, custody, privacy, and limitations of robins.tools.
+---
+
+## Is it safe to use?
+
+The app never takes custody of your funds and never asks for your private key or seed phrase. Every transaction is built in your browser and sent to your own wallet, where you review and sign it. The code is open source and MIT licensed, so you can read exactly what each tool does, or [self-host](/docs/security) it. That said, on-chain actions are irreversible: the safety of a given send, burn, or approval depends on the addresses and amounts you enter, so review each transaction in your wallet before signing.
+
+## Does it cost anything?
+
+The app itself is free. You pay only the network gas for transactions you send, and that gas goes to the network, not to robins.tools. Read-only tools (balances, decoding, contract queries, the network tracker) send no transactions and cost nothing. The app adds no fees, markups, or tips of any kind.
+
+## Can the app access my funds?
+
+No. Connecting a wallet shares only your address; it grants no spending permission. The app can propose transactions, but it can never move anything without your wallet's explicit signature for that specific action. There is no admin key, no custody, and no way for the app to sweep or drain a connected wallet.
+
+## Why is there no backend or account?
+
+Because there is nothing that needs one. The tools are pure client-side computation plus direct calls to the chain RPC. Removing the server removes an entire category of risk: there is no database of your addresses to breach, no logs of your activity, and no account to compromise. See [Privacy by design](/docs/concepts/privacy-by-design).
+
+## What data does the app send, and where?
+
+Only what a tool needs to do its job, and only to the chain and its explorer. Chain reads and transaction broadcasts go to the Robinhood Chain RPC; verified-contract names and ABIs come from the Blockscout explorer API; and unknown 4-byte function selectors are looked up on openchain.xyz (only the selector is sent, never your address). The fully offline tools (converter, address utilities, merkle generator, signature verification, and vanity generator) make no network requests at all. The complete list is in [Privacy by design](/docs/concepts/privacy-by-design).
+
+## Are there rate limits?
+
+The public RPC is shared and rate-limited, so very large batches (checking thousands of balances, scanning long approval histories) can slow down or intermittently fail. Tools that read in bulk chunk their calls through Multicall3 and offer a retry for any failed chunk. If you hit limits often, self-host and set `NEXT_PUBLIC_RPC_URL` to a dedicated provider. See the [Network reference](/docs/getting-started/network).
+
+## Does it work with mobile wallets?
+
+Yes. Wallet connection uses Reown AppKit, which supports mobile wallets over WalletConnect in addition to browser extensions and injected wallets. Scan the QR code or open your wallet app from the connection modal. See [Connecting a wallet](/docs/getting-started/connecting-a-wallet).
+
+## Which wallets are supported?
+
+Any standard EVM wallet: browser extensions such as MetaMask and Rabby, injected wallets, and mobile wallets via WalletConnect. When you connect, the app asks your wallet to add and switch to Robinhood Chain (chain ID 4663).
+
+## Where do the disperse and token contracts come from?
+
+Two tools rely on a helper contract. The [Multisender](/docs/tools/multisender) uses an open-source disperse helper for ERC-20 batches, and the [Token Creator](/docs/tools/token-creator) deploys a standard ERC-20. In both cases the contract is deployed from your own wallet in a transaction you sign, and you own the deployment. Nothing is pre-deployed or controlled by robins.tools.
+
+## Is my private key ever transmitted by the vanity generator?
+
+No. The [Vanity Address Generator](/docs/tools/vanity) creates keys locally in your browser using Web Workers and `crypto.getRandomValues`. The generated key is displayed in the tab and never sent anywhere. Treat any key it produces as a hot wallet and save it securely.
+
+## Something failed or reverted. What now?
+
+Read the error your wallet or the tool shows; reverts usually carry a reason (insufficient balance, missing allowance, a contract-specific error). Bulk tools let you retry only the failed part without repeating completed work. Transient failures are often RPC rate limits; wait a moment and retry, or switch to a dedicated RPC.
+
+## Can I self-host it?
+
+Yes. Clone the repository, install dependencies, set the environment variables, and build. Full instructions, including how to verify that a deployment matches the source, are in [Security](/docs/security).

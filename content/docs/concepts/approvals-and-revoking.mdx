@@ -1,0 +1,43 @@
+---
+title: Approvals and revoking
+description: How ERC-20 allowances work, why unlimited approvals are risky, and what revoking does.
+---
+
+To let a contract move your tokens (a DEX, a bridge, a batch sender), you first grant it an **allowance**. Understanding what that allowance is, and cleaning up the ones you no longer need, is one of the simplest ways to reduce risk on any EVM chain.
+
+## The allowance model
+
+ERC-20 tokens separate holding from spending. You always control your own balance, but a token also tracks, per spender, how much of your balance that spender is allowed to move on your behalf:
+
+1. You call `approve(spender, amount)` on the token. This sets the spender's allowance; it does not move any tokens.
+2. Later, the spender calls `transferFrom(you, recipient, value)`. This succeeds only up to your current allowance, and it decreases the allowance by the amount spent (unless the allowance is unlimited).
+
+The allowance persists until you change it. It does not expire on its own.
+
+## Why unlimited approvals are risky
+
+Many apps request an **unlimited** allowance (a maximum-value number) so you only have to approve once. That is convenient, but it means the spender can move your entire balance of that token, now and indefinitely, without asking again.
+
+If that spender contract is later exploited or was malicious to begin with, a live unlimited allowance is exactly what an attacker uses to drain the token from your wallet, with no further action needed from you. The tokens at risk are only the ones you approved, but for an unlimited approval that is your whole balance of that token.
+
+<Callout type="warn">
+  An allowance is a standing permission, not a one-time action. Every unlimited
+  approval you leave in place is a contract you are trusting with that token
+  indefinitely.
+</Callout>
+
+## Revoking
+
+Revoking is setting the allowance back to zero with `approve(spender, 0)`. After that, the spender can no longer move your tokens until you approve again.
+
+Revoking is forward-looking only. It stops **future** spending; it cannot reverse transfers that already happened under a previous allowance. That is why it is worth revoking proactively, before a spender is compromised, not after.
+
+Good habits:
+
+- Prefer exact-amount approvals over unlimited where an app supports them.
+- Periodically review your active allowances and revoke anything you no longer use.
+- Treat an unlimited approval to an unfamiliar contract as the highest priority to remove.
+
+## Doing it here
+
+The [Approval Manager](/docs/tools/approvals) scans your approval history, lists every allowance that is still active (flagging unlimited ones), and lets you revoke any of them in a single transaction. The scan is read-only; each revoke is a normal transaction you sign and pay gas for.

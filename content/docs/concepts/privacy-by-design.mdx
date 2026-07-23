@@ -1,0 +1,50 @@
+---
+title: Privacy by design
+description: Why having no backend means there is nothing to leak, and exactly what the app sends and where.
+---
+
+robins.tools is built so that privacy is not a policy you have to trust. It is a consequence of the architecture. Because there is no backend and no database, there is no store of your activity that could be leaked, subpoenaed, or sold. This page explains what that means and lists precisely what the app talks to.
+
+## Nothing to leak
+
+The app is a static frontend. Every tool is either pure computation in your browser or a direct call from your browser to the chain. Concretely:
+
+- **No account system.** There is nothing to sign up for and no identity to log in as.
+- **No database.** Your addresses, lists, balances, and results stay in the page while you use it. Nothing is written to a server, because there is no server to write to.
+- **No custody or key access.** The app never holds funds and never sees your private key or seed phrase. Transactions are signed in your wallet.
+- **No activity logs.** No backend records what you look up or send.
+
+A breach exposes data that exists somewhere. Here, the sensitive data never leaves your browser: your lists and your queries stay on the page.
+
+## What the app sends, and where
+
+The app contacts only what it needs to function, and only these destinations:
+
+| Destination             | Why                                                                                           | What is sent                                                                                                |
+| ----------------------- | --------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Robinhood Chain RPC     | Read chain data and broadcast transactions you sign                                           | Standard RPC requests: balance and contract reads, transaction lookups, and signed transactions you approve |
+| Blockscout explorer API | Fetch verified-contract ABIs and names                                                        | A contract address, to retrieve its public verified metadata                                                |
+| openchain.xyz           | Look up an unknown 4-byte function selector in the [Transaction Decoder](/docs/tools/decoder) | Only the 4-byte selector, never your address or full calldata                                               |
+| api.github.com          | Show the repository star count in the header, only when a GitHub repository is configured     | The public owner and repository name, to read the repository's public star count                            |
+
+That is the complete list. If you self-host with your own RPC, even the chain reads go to a provider you choose. See the [Network reference](/docs/getting-started/network).
+
+## Tools that touch no network at all
+
+Several tools are fully offline and make no requests to anything:
+
+- [Unit & Hex Converter](/docs/tools/converter)
+- [Address List Utilities](/docs/tools/address-utils)
+- [Merkle Tree Generator](/docs/tools/merkle)
+- [Sign & Verify](/docs/tools/sign): the verify side (recovering a signer) is local; signing uses your wallet
+- [Vanity Address Generator](/docs/tools/vanity): keys are generated locally and never transmitted
+
+<Callout type="info">
+  Your wallet and its own RPC still see the transactions you sign; that is
+  inherent to using a blockchain. robins.tools adds nothing on top of that, with
+  no analytics and no server in the middle.
+</Callout>
+
+## Verify it yourself
+
+You do not have to take this on faith. The code is open source, and you can read exactly what each tool requests or [self-host](/docs/security) it so the frontend itself is served from infrastructure you control.

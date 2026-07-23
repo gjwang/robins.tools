@@ -1,0 +1,15 @@
+/*
+ * Docs-scoped styles. Imported only by the docs layout so the fumadocs-ui
+ * theme never leaks into the rest of the app (and app/globals.css stays
+ * untouched). Tailwind must be imported here for the fumadocs preset's
+ * `@apply` / `@variant` / `@plugin` directives to resolve. Dark mode uses the
+ * `.dark` class, which matches next-themes (`attribute="class"`) from the root
+ * layout, so the existing theme toggle drives fumadocs colors too.
+ */
+@import "tailwindcss";
+@import "fumadocs-ui/css/neutral.css";
+@import "fumadocs-ui/css/preset.css";
+
+/* Tailwind ignores node_modules during automatic content detection, so the
+ * fumadocs-ui component classes must be registered explicitly. */
+@source "../../node_modules/fumadocs-ui/dist/**/*.js";

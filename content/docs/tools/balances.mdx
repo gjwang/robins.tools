@@ -1,0 +1,37 @@
+---
+title: Batch Balance Checker
+description: Fetch native and token balances for hundreds of addresses in one multicall, then sort and export.
+---
+
+The Batch Balance Checker reads the native ETH balance and any token balances you choose for a whole list of addresses at once. It is read-only (no wallet needed) and batches every read through Multicall3, so a large list is a handful of RPC round-trips. Results sort by any column and export to CSV.
+
+## What it does
+
+- Checks native ETH plus up to five ERC-20 tokens across up to 500 addresses.
+- Uses Multicall3 so hundreds of reads become a few requests.
+- Produces a sortable table with per-column totals and a full-precision CSV export.
+
+## Step by step
+
+1. **Add addresses.** Paste a list or upload a `.csv`/`.txt` file. Addresses are validated and deduplicated automatically; invalid lines are flagged. The cap is **500 addresses**, with a clear message if you exceed it.
+2. **Add tokens (optional).** Native ETH is always included. Paste a token address to add a column; its symbol and decimals are fetched and it appears as a removable chip. Up to **5 tokens**; a non-ERC-20 or invalid address is rejected inline.
+3. **Fetch.** Reads are chunked (up to 300 calls per multicall) with a progress indicator. Native balances ride the same Multicall3 pipeline via `getEthBalance`.
+4. **Sort and export.** Click any column header to sort ascending or descending. A totals row sums each column. **Export CSV** downloads full-precision decimal values (no truncation) with columns `address,eth,<symbol>…`.
+
+## States
+
+- **Idle** shows the accepted input formats.
+- **Loading** shows chunk progress (x of y).
+- **Partial failure**: if some chunks fail (usually RPC rate limits), you can retry just the failed ones.
+- **Empty**: a clear message when there is nothing to show.
+
+## Fees and gas
+
+Free. This tool only reads the chain and sends no transactions.
+
+## Limits and safety
+
+- Up to 500 addresses and 5 tokens per run.
+- Displayed amounts are formatted for readability; the CSV export keeps full precision for accounting.
+- Large lists on the public RPC can hit rate limits; use the failed-chunk retry, or self-host with a dedicated RPC (see the [Network reference](/docs/getting-started/network)).
+- Balances are a snapshot at fetch time; re-fetch for current values.
