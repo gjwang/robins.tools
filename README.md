@@ -80,7 +80,7 @@ The app is a static-friendly Next.js project with no server database. Deploy it 
 | `NEXT_PUBLIC_RPC_URL`          | optional    | Override the public mainnet RPC with a dedicated endpoint.                                                       |
 | `NEXT_PUBLIC_GITHUB_URL`       | optional    | When set, GitHub links appear in the header and footer.                                                          |
 | `NEXT_PUBLIC_DISPERSE_ADDRESS` | optional    | Pre-deployed RobinsDisperse contract for the Multisender; otherwise users deploy their own once.                 |
-| `NEXT_PUBLIC_TOOLS_TOKEN_ADDRESS` | optional | Published $TOOLS community token contract address, shown on `/token` once set.                                   |
+| `NEXT_PUBLIC_TOOLS_TOKEN_ADDRESS` | optional | Published $OPENROBIN community token contract address, shown on `/token` once set.                                   |
 
 See [`.env.example`](.env.example) for the annotated list.
 
